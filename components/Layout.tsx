@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // Nếu đang ở trang login thì không render layout đầy đủ (chỉ render children)
   if (location.pathname === '/login') {
-    return <div className="min-h-screen bg-gray-50">{children}</div>;
+    return <div className="min-h-screen bg-slate-100">{children}</div>;
   }
 
   const isActive = (path: string) => {
@@ -41,9 +41,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-slate-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 no-print">
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 no-print shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2 group">

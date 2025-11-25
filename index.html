@@ -62,6 +62,27 @@
       
       /* Math Specific Fixes */
       .katex { font-size: 1.1em; }
+
+      /* Print Styles */
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+        body {
+          background-color: white;
+        }
+        .print-content {
+          width: 100%;
+          margin: 0;
+          padding: 0;
+          box-shadow: none !important;
+          border: none !important;
+        }
+        /* Ensure math renders correctly in print */
+        .katex-display {
+          margin: 1em 0;
+        }
+      }
     </style>
   <script type="importmap">
 {

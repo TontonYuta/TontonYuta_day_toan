@@ -1,3 +1,4 @@
+
 export enum GradeLevel {
   Grade1 = "Lớp 1",
   Grade2 = "Lớp 2",
@@ -59,6 +60,7 @@ export interface SessionData {
   id: string;
   title: string;
   description: string;
+  videoUrl?: string; // New field for video link
   theory: string; // Markdown supported content
   examples: Example[];
   essays: EssayQuestion[];

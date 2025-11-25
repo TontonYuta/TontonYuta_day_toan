@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Copy, Check, Eye, Code, Save, Edit2, Bot, ExternalLink, X, Sparkles } from 'lucide-react';
 import Button from './Button';
@@ -19,6 +20,7 @@ const ContentBuilder: React.FC = () => {
   const [id, setId] = useState(editData?.id || `s${Math.floor(Math.random() * 1000)}`);
   const [title, setTitle] = useState(editData?.title || '');
   const [desc, setDesc] = useState(editData?.description || '');
+  const [videoUrl, setVideoUrl] = useState(editData?.videoUrl || ''); // New state for video URL
   const [theory, setTheory] = useState(editData?.theory || '');
   const [review, setReview] = useState(editData?.review || '');
   
@@ -33,6 +35,7 @@ const ContentBuilder: React.FC = () => {
   "id": "tự_sinh_ngẫu_nhiên_ngắn_gọn",
   "title": "Tên bài học",
   "description": "Mô tả ngắn gọn mục tiêu bài học",
+  "videoUrl": "Link YouTube của bài giảng (nếu có, để trống nếu không biết)",
   "theory": "Nội dung lý thuyết định dạng Markdown. Sử dụng $...$ cho công thức toán inline (ví dụ $x^2$). Sử dụng ### cho tiêu đề mục.",
   "examples": [
     { 
@@ -120,6 +123,7 @@ Hãy bắt đầu! Dưới đây là nội dung bài học:
         id: "${id}",
         title: "${safeString(title)}",
         description: "${safeString(desc)}",
+        videoUrl: "${safeString(videoUrl)}",
         theory: \`${safeString(theory)}\`,
         examples: [
 ${examples.map(ex => `          {
@@ -264,6 +268,18 @@ ${mcqs.map(m => `          {
                   placeholder="Mô tả nội dung chính của bài học..."
                   className={`${inputClass} h-20`}
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Link Video Bài Giảng (YouTube)</label>
+                <input 
+                  type="url" 
+                  value={videoUrl} 
+                  onChange={e => setVideoUrl(e.target.value)} 
+                  placeholder="https://www.youtube.com/watch?v=..."
+                  className={inputClass}
+                />
+                <p className="text-xs text-gray-500 mt-1">Hỗ trợ link YouTube. Video sẽ hiển thị ở đầu phần Lý thuyết.</p>
               </div>
               
               <div>

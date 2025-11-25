@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle, HelpCircle, CheckSquare, RotateCcw } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle, XCircle, AlertCircle, HelpCircle, CheckSquare, RotateCcw, Youtube, ExternalLink, Printer } from 'lucide-react';
 import { EssayQuestion, Example, MCQQuestion } from '../types';
 import Button from './Button';
 import MathText from './MathText';
@@ -10,6 +11,15 @@ interface ViewProps {
   isCompleted?: boolean;
 }
 
+// --- Helper: Get Embed URL from YouTube Link ---
+const getYoutubeEmbedUrl = (url: string) => {
+  if (!url) return null;
+  // Handle youtube.com/watch?v=ID
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+};
+
 // --- Helper Component for Completion Button ---
 const CompleteSectionButton: React.FC<{ onClick?: () => void; isCompleted?: boolean; label?: string }> = ({ 
   onClick, 
@@ -19,7 +29,7 @@ const CompleteSectionButton: React.FC<{ onClick?: () => void; isCompleted?: bool
   if (!onClick) return null;
   
   return (
-    <div className="mt-8 flex justify-center">
+    <div className="mt-8 flex justify-center no-print">
       <button
         onClick={onClick}
         disabled={isCompleted}
@@ -44,7 +54,7 @@ const ResetSectionButton: React.FC<{ onClick?: () => void; label?: string }> = (
   if (!onClick) return null;
   
   return (
-    <div className="mt-4 flex justify-center">
+    <div className="mt-4 flex justify-center no-print">
       <button
         onClick={onClick}
         className="flex items-center gap-2 px-4 py-2 text-sm text-gray-500 hover:text-gray-900 bg-transparent hover:bg-gray-100 rounded-full font-medium transition-colors"
@@ -57,11 +67,62 @@ const ResetSectionButton: React.FC<{ onClick?: () => void; label?: string }> = (
 };
 
 // --- Theory Tab ---
-export const TheoryView: React.FC<{ content: string } & ViewProps> = ({ content, onComplete, isCompleted }) => {
+export const TheoryView: React.FC<{ content: string; videoUrl?: string } & ViewProps> = ({ content, videoUrl, onComplete, isCompleted }) => {
+  const embedUrl = videoUrl ? getYoutubeEmbedUrl(videoUrl) : null;
+  
+  const handlePrint = () => {
+    window.print();
+  };
+
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <MathText content={content} block={true} />
-      <CompleteSectionButton onClick={onComplete} isCompleted={isCompleted} label="Đã hiểu lý thuyết" />
+    <div className="space-y-6">
+      {/* Video Section */}
+      {videoUrl && (
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 no-print">
+           <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+             <Youtube className="text-red-600" /> Video bài giảng
+           </h3>
+           {embedUrl ? (
+             <div className="relative w-full pt-[56.25%] rounded-lg overflow-hidden bg-black shadow-md">
+                <iframe 
+                  className="absolute top-0 left-0 w-full h-full"
+                  src={embedUrl} 
+                  title="Video bài giảng"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+             </div>
+           ) : (
+             <a 
+               href={videoUrl} 
+               target="_blank" 
+               rel="noopener noreferrer"
+               className="flex items-center justify-center gap-2 w-full p-8 bg-gray-50 border border-dashed border-gray-300 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors font-medium"
+             >
+               <ExternalLink size={20} />
+               Xem video bài giảng tại liên kết này
+             </a>
+           )}
+        </div>
+      )}
+
+      {/* Theory Content */}
+      <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 print-content">
+        <div className="flex justify-between items-center mb-4 border-b pb-2">
+           <h3 className="font-bold text-gray-800">Nội dung bài học</h3>
+           <button 
+             onClick={handlePrint}
+             className="no-print flex items-center gap-1 text-gray-500 hover:text-primary text-sm font-medium transition-colors"
+             title="In nội dung này"
+           >
+             <Printer size={16} /> In bài học
+           </button>
+        </div>
+        
+        <MathText content={content} block={true} />
+        <CompleteSectionButton onClick={onComplete} isCompleted={isCompleted} label="Đã hiểu lý thuyết" />
+      </div>
     </div>
   );
 };
@@ -73,7 +134,7 @@ export const ExamplesView: React.FC<{ examples: Example[] } & ViewProps> = ({ ex
   return (
     <div className="space-y-6">
       {examples.map((ex, index) => (
-        <div key={ex.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div key={ex.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden print-content">
           <div className="bg-blue-50/50 px-6 py-4 border-b border-blue-100 flex items-start gap-3">
             <span className="flex-shrink-0 w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
               {index + 1}
@@ -119,7 +180,7 @@ export const EssayView: React.FC<{ essays: EssayQuestion[] } & ViewProps> = ({ e
   return (
     <div className="space-y-8">
       {essays.map((item, index) => (
-        <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div key={item.id} className="bg-white rounded-xl shadow-sm border border-gray-200 print-content">
           <div className="p-6">
             <div className="flex gap-3 mb-4">
                <span className="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center font-bold text-sm">
@@ -141,7 +202,7 @@ export const EssayView: React.FC<{ essays: EssayQuestion[] } & ViewProps> = ({ e
               </div>
             </div>
             
-            <div className="flex justify-end">
+            <div className="flex justify-end no-print">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -201,7 +262,7 @@ export const MCQView: React.FC<{ mcqs: MCQQuestion[] } & ViewProps> = ({ mcqs, o
         const isCorrect = selected === q.correctIndex;
 
         return (
-          <div key={q.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div key={q.id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden print-content">
             <div className="p-6">
               <div className="flex gap-3 mb-4">
                 <span className="flex-shrink-0 w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-sm">
@@ -251,7 +312,7 @@ export const MCQView: React.FC<{ mcqs: MCQQuestion[] } & ViewProps> = ({ mcqs, o
               </div>
 
               {!isSubmitted && (
-                <div className="mt-6 pl-11">
+                <div className="mt-6 pl-11 no-print">
                   <Button 
                     onClick={() => checkAnswer(q.id)} 
                     disabled={selected === undefined || selected === null}
@@ -298,7 +359,7 @@ export const MCQView: React.FC<{ mcqs: MCQQuestion[] } & ViewProps> = ({ mcqs, o
 // --- Review Tab ---
 export const ReviewView: React.FC<{ content: string } & ViewProps> = ({ content, onComplete, isCompleted }) => {
   return (
-    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-8 rounded-xl shadow-sm border border-yellow-200">
+    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 p-8 rounded-xl shadow-sm border border-yellow-200 print-content">
       <h3 className="text-xl font-bold text-yellow-800 mb-6 flex items-center gap-2">
         <CheckCircle className="w-6 h-6" />
         Tổng kết bài học

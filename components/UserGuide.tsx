@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BookOpen, Code, GraduationCap, Layers, CheckCircle2, HelpCircle, FileText, CheckSquare, PenTool, GitBranch, Terminal, UploadCloud } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -47,8 +48,8 @@ const UserGuide: React.FC = () => {
                 <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100 hover:border-green-200 transition-colors">
                   <div className="bg-blue-100 text-blue-600 p-2 rounded-lg"><BookOpen size={18}/></div>
                   <div>
-                    <span className="font-bold text-gray-800 block">1. Lý thuyết</span>
-                    <span className="text-sm text-gray-500">Đọc hiểu kiến thức trọng tâm.</span>
+                    <span className="font-bold text-gray-800 block">1. Lý thuyết & Video</span>
+                    <span className="text-sm text-gray-500">Xem video bài giảng (nếu có) và đọc hiểu kiến thức trọng tâm.</span>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100 hover:border-green-200 transition-colors">
@@ -122,7 +123,7 @@ const UserGuide: React.FC = () => {
                 Truy cập trang <strong>Soạn bài</strong> từ menu Admin. Form nhập liệu được chia làm 6 bước:
               </p>
               <ul className="list-disc list-inside text-gray-600 ml-2 space-y-1">
-                <li><strong>Bước 1:</strong> Thông tin chung (Tiêu đề, Mô tả).</li>
+                <li><strong>Bước 1:</strong> Thông tin chung (Tiêu đề, Video YouTube, Mô tả).</li>
                 <li><strong>Bước 2:</strong> Soạn Lý thuyết (Hỗ trợ Markdown & LaTeX: <code>$x^2$</code>).</li>
                 <li><strong>Bước 3-5:</strong> Nhập Ví dụ, Tự luận và Trắc nghiệm.</li>
                 <li><strong>Bước 6:</strong> Xuất mã nguồn JSON.</li>

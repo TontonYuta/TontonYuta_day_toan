@@ -38,14 +38,6 @@ const MOCK_USERS_SEED: (User & { password: string })[] = [
     name: "Lê Văn C",
     role: "student",
     avatar: "H3"
-  },
-  {
-    "id": "u_1764076465354",
-    "name": "Trần Huy Hoàng ",
-    "username": "yuta1",
-    "role": "student",
-    "avatar": "T",
-    "password": "123"
   }
 ];
 

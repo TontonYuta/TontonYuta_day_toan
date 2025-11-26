@@ -127,7 +127,7 @@ Các số: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10.
         id: "s1_6",
         title: "Buổi 1: Tập hợp và Phần tử của tập hợp",
         description: "Làm quen với ngôn ngữ tập hợp, cách liệt kê, tính chất đặc trưng và các ký hiệu toán học cơ bản.",
-        videoUrl: "https://www.youtube.com/watch?v=4vhzvygl-ck",
+        videoUrl: "https://www.youtube.com/watch?v=vWh41JLvOTM&list=PL5q2T2FxzK7W7fdMp5HMg69q1k7aW2_Z6",
         theory: `### 1. Làm quen với tập hợp
 Trong toán học và đời sống, ta thường gặp các nhóm đối tượng.
 *Ví dụ:* Tập hợp các học sinh trong lớp 6A, tập hợp các số tự nhiên nhỏ hơn 10.

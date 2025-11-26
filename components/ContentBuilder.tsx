@@ -116,40 +116,41 @@ Hãy bắt đầu! Dưới đây là nội dung bài học:
 
   // Generate Code Function
   const generateCode = () => {
-    const safeString = (str: string) => str.replace(/`/g, "\\`").replace(/\${/g, "\\${");
+    // Escape backticks and ${} to prevent template literal injection
+    const safe = (str: string) => str.replace(/`/g, "\\`").replace(/\${/g, "\\${");
     
-    // Construct the object string
+    // Construct the object string using backticks for content fields to support newlines
     let code = `      {
         id: "${id}",
-        title: "${safeString(title)}",
-        description: "${safeString(desc)}",
-        videoUrl: "${safeString(videoUrl)}",
-        theory: \`${safeString(theory)}\`,
+        title: \`${safe(title)}\`,
+        description: \`${safe(desc)}\`,
+        videoUrl: "${safe(videoUrl)}",
+        theory: \`${safe(theory)}\`,
         examples: [
 ${examples.map(ex => `          {
             id: "${ex.id}",
-            problem: "${safeString(ex.problem)}",
-            solution: "${safeString(ex.solution)}"
+            problem: \`${safe(ex.problem)}\`,
+            solution: \`${safe(ex.solution)}\`
           }`).join(',\n')}
         ],
         essays: [
 ${essays.map(es => `          {
             id: "${es.id}",
-            question: "${safeString(es.question)}",
-            solution: "${safeString(es.solution)}",
-            hint: "${safeString(es.hint || '')}"
+            question: \`${safe(es.question)}\`,
+            solution: \`${safe(es.solution)}\`,
+            hint: \`${safe(es.hint || '')}\`
           }`).join(',\n')}
         ],
         mcqs: [
 ${mcqs.map(m => `          {
             id: "${m.id}",
-            question: "${safeString(m.question)}",
-            options: [${m.options.map(o => `"${safeString(o)}"`).join(', ')}],
+            question: \`${safe(m.question)}\`,
+            options: [${m.options.map(o => `\`${safe(o)}\``).join(', ')}],
             correctIndex: ${m.correctIndex},
-            explanation: "${safeString(m.explanation)}"
+            explanation: \`${safe(m.explanation)}\`
           }`).join(',\n')}
         ],
-        review: "${safeString(review)}"
+        review: \`${safe(review)}\`
       }`;
       
     return code;
@@ -335,18 +336,18 @@ ${mcqs.map(m => `          {
                 <div key={ex.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative group">
                   <button 
                     onClick={() => removeExample(idx)}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-4 right-4 text-gray-400 hover:text-red-50 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <Trash2 size={18} />
                   </button>
                   <span className="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded mb-3 inline-block">Ví dụ {idx + 1}</span>
                   
                   <div className="space-y-3">
-                    <input 
+                    <textarea
                       placeholder="Đề bài (VD: Giải phương trình $2x = 4$)"
                       value={ex.problem}
                       onChange={(e) => updateExample(idx, 'problem', e.target.value)}
-                      className={inputClass}
+                      className={`${inputClass} h-20`}
                     />
                     <textarea 
                       placeholder="Lời giải chi tiết..."
@@ -371,15 +372,15 @@ ${mcqs.map(m => `          {
 
               {essays.map((es, idx) => (
                 <div key={es.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative group">
-                  <button onClick={() => removeEssay(idx)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button>
+                  <button onClick={() => removeEssay(idx)} className="absolute top-4 right-4 text-gray-400 hover:text-red-50 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button>
                   <span className="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded mb-3 inline-block">Bài {idx + 1}</span>
                   
                   <div className="space-y-3">
-                    <input 
+                    <textarea 
                       placeholder="Câu hỏi..."
                       value={es.question}
                       onChange={(e) => updateEssay(idx, 'question', e.target.value)}
-                      className={inputClass}
+                      className={`${inputClass} h-20`}
                     />
                     <input 
                       placeholder="Gợi ý (Không bắt buộc)"
@@ -409,15 +410,15 @@ ${mcqs.map(m => `          {
 
               {mcqs.map((m, idx) => (
                 <div key={m.id} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative group">
-                   <button onClick={() => removeMcq(idx)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button>
+                   <button onClick={() => removeMcq(idx)} className="absolute top-4 right-4 text-gray-400 hover:text-red-50 opacity-0 group-hover:opacity-100"><Trash2 size={18} /></button>
                    <span className="bg-indigo-100 text-indigo-800 text-xs font-bold px-2 py-1 rounded mb-3 inline-block">Câu {idx + 1}</span>
 
                    <div className="space-y-4">
-                     <input 
+                     <textarea 
                         placeholder="Nội dung câu hỏi..."
                         value={m.question}
                         onChange={(e) => updateMcq(idx, 'question', e.target.value)}
-                        className={`${inputClass} font-medium`}
+                        className={`${inputClass} font-medium h-20`}
                       />
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -442,11 +443,11 @@ ${mcqs.map(m => `          {
                         ))}
                       </div>
 
-                      <input 
+                      <textarea 
                         placeholder="Giải thích đáp án đúng..."
                         value={m.explanation}
                         onChange={(e) => updateMcq(idx, 'explanation', e.target.value)}
-                        className="w-full p-3 border border-dashed border-gray-300 rounded text-sm bg-gray-50 focus:bg-white focus:border-primary outline-none transition-colors"
+                        className={`${inputClass} text-sm h-16`}
                       />
                    </div>
                 </div>

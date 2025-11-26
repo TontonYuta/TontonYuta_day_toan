@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Check, Trash2, Plus, ListTodo, Move, Minus, Flag, Edit2, Trash, Filter } from 'lucide-react';
-import Button from './Button';
+import React, { useState, useEffect } from 'react';
+import { X, Check, Trash2, Plus, ListTodo, Minus, Flag, Edit2, Trash } from 'lucide-react';
 
 interface TodoListProps {
   isOpen: boolean;
@@ -30,11 +29,6 @@ const TodoList: React.FC<TodoListProps> = ({ isOpen, onClose }) => {
   const [editValue, setEditValue] = useState('');
 
   const [isMinimized, setIsMinimized] = useState(false);
-  
-  // Draggable state
-  const [position, setPosition] = useState({ x: window.innerWidth - 380, y: 100 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0 });
 
   // Load tasks from localStorage
   useEffect(() => {
@@ -94,49 +88,11 @@ const TodoList: React.FC<TodoListProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // Dragging Logic
-  const startDragging = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    dragStartRef.current = {
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    };
-  };
-
-  useEffect(() => {
-    const onDrag = (e: MouseEvent) => {
-      if (isDragging) {
-        setPosition({
-          x: e.clientX - dragStartRef.current.x,
-          y: e.clientY - dragStartRef.current.y
-        });
-      }
-    };
-    const stopDragging = () => setIsDragging(false);
-
-    if (isDragging) {
-      window.addEventListener('mousemove', onDrag);
-      window.addEventListener('mouseup', stopDragging);
-    }
-    return () => {
-      window.removeEventListener('mousemove', onDrag);
-      window.removeEventListener('mouseup', stopDragging);
-    };
-  }, [isDragging]);
-
   const filteredTasks = tasks.filter(t => {
     if (filter === 'active') return !t.completed;
     if (filter === 'completed') return t.completed;
     return true;
   });
-
-  const getPriorityColor = (p: Priority) => {
-    switch(p) {
-      case 'high': return 'text-red-500 bg-red-50 border-red-200';
-      case 'medium': return 'text-orange-500 bg-orange-50 border-orange-200';
-      case 'low': return 'text-blue-500 bg-blue-50 border-blue-200';
-    }
-  };
 
   const getPriorityIconColor = (p: Priority) => {
     switch(p) {
@@ -152,10 +108,9 @@ const TodoList: React.FC<TodoListProps> = ({ isOpen, onClose }) => {
   if (isMinimized) {
     return (
       <div 
-        className="fixed z-[100] bg-indigo-600 text-white p-3 rounded-full shadow-xl cursor-pointer hover:bg-indigo-700 transition-all animate-bounce border-2 border-white flex items-center justify-center"
-        style={{ left: position.x, top: position.y }}
+        className="fixed z-[100] bottom-24 right-6 bg-indigo-600 text-white p-3 rounded-full shadow-xl cursor-pointer hover:bg-indigo-700 transition-colors animate-bounce border-2 border-white flex items-center justify-center select-none"
         onClick={() => setIsMinimized(false)}
-        onMouseDown={startDragging}
+        title="Mở rộng danh sách việc cần làm"
       >
         <ListTodo size={24} />
         {tasks.filter(t => !t.completed).length > 0 && (
@@ -171,30 +126,23 @@ const TodoList: React.FC<TodoListProps> = ({ isOpen, onClose }) => {
 
   return (
     <div 
-      className="fixed z-[100] w-[380px] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 font-sans"
-      style={{ 
-        left: position.x, 
-        top: position.y,
-        maxHeight: '85vh'
-      }}
+      className="fixed z-[100] bottom-24 right-6 w-[380px] bg-white rounded-xl shadow-2xl border border-gray-200 flex flex-col overflow-hidden animate-in slide-in-from-right-10 duration-300 font-sans"
+      style={{ maxHeight: 'calc(100vh - 120px)' }}
     >
       {/* Header */}
-      <div 
-        className="bg-indigo-600 p-3 flex items-center justify-between cursor-move select-none text-white shadow-md z-10"
-        onMouseDown={startDragging}
-      >
-        <div className="flex items-center gap-2">
+      <div className="bg-indigo-600 p-3 flex items-center justify-between select-none text-white shadow-md z-10 cursor-default">
+        <div className="flex items-center gap-2 pointer-events-none">
           <ListTodo size={18} />
           <span className="font-bold text-sm">Việc cần làm</span>
           <span className="bg-indigo-500 text-xs px-2 py-0.5 rounded-full border border-indigo-400">
             {activeCount}
           </span>
         </div>
-        <div className="flex items-center gap-1" onMouseDown={e => e.stopPropagation()}>
-          <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-indigo-500 rounded text-indigo-100 hover:text-white transition-colors">
+        <div className="flex items-center gap-1">
+          <button onClick={() => setIsMinimized(true)} className="p-1 hover:bg-indigo-500 rounded text-indigo-100 hover:text-white transition-colors" title="Thu nhỏ">
             <Minus size={16} />
           </button>
-          <button onClick={onClose} className="p-1 hover:bg-red-500 rounded text-indigo-100 hover:text-white transition-colors">
+          <button onClick={onClose} className="p-1 hover:bg-red-500 rounded text-indigo-100 hover:text-white transition-colors" title="Đóng">
             <X size={16} />
           </button>
         </div>

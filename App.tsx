@@ -1036,31 +1036,31 @@ const GradeOverviewPage = () => {
                     <Link
                       key={session.id}
                       to={`/grade/${gradeId}/session/${session.id}`}
-                      className="flex flex-col bg-white p-6 rounded-3xl shadow-md border-t-4 border-blue-500 hover:shadow-xl transition-all group relative overflow-hidden hover:-translate-y-1"
+                      className="flex flex-col bg-slate-800 p-6 rounded-3xl shadow-lg border border-slate-700 border-t-4 border-t-blue-500 hover:shadow-2xl hover:border-t-blue-400 transition-all group relative overflow-hidden hover:-translate-y-1"
                     >
                       <div className="flex items-start justify-between mb-4">
-                        <div className={`p-3 rounded-lg transition-colors shadow-sm ${progress === 100 ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                        <div className={`p-3 rounded-lg transition-colors shadow-sm ${progress === 100 ? 'bg-green-900/50 text-green-400' : 'bg-blue-900/50 text-blue-400'}`}>
                           {progress === 100 ? <CheckCircle2 size={24} /> : <PlayCircle size={24} />}
                         </div>
-                        <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
+                        <span className="text-xs font-bold text-slate-400 bg-slate-900/50 px-2 py-1 rounded-full border border-slate-600 shadow-sm">
                           5 phần học
                         </span>
                       </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
+                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
                         {session.title}
                       </h3>
-                      <p className="text-sm text-gray-500 line-clamp-2 mb-6 flex-grow leading-relaxed">
+                      <p className="text-sm text-slate-400 line-clamp-2 mb-6 flex-grow leading-relaxed">
                         {session.description}
                       </p>
                       
                       {/* Progress Bar */}
-                      <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden border border-gray-100">
+                      <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden border border-slate-600">
                         <div 
                           className={`h-full transition-all duration-700 rounded-full shadow-sm ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`} 
                           style={{ width: `${progress}%` }}
                         ></div>
                       </div>
-                      <div className="mt-2 text-xs text-right text-gray-500 font-bold">
+                      <div className="mt-2 text-xs text-right text-slate-500 font-bold">
                         {progress}% Hoàn thành
                       </div>
                     </Link>

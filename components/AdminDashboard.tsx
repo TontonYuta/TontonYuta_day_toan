@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Users, BookOpen, BarChart2, Code, FileText, CheckSquare, Search, Edit, Bell, ShieldCheck, Key, Trash2, UserPlus, X, Save, FileQuestion, PenTool, FolderOpen, Plus, File, Copy, Check, GitBranch, Terminal, UploadCloud } from 'lucide-react';
 import { MATH_DATA } from '../data';
 import { getAllUsers, getCurrentUser, saveUserToStorage, deleteUserFromStorage, resetUserPasswordInStorage } from '../services/authService';
-import { getResources, addResource, deleteResource } from '../services/resourceService';
+import { getResources, addResource } from '../services/resourceService';
 import { User, UserRole, Resource } from '../types';
 
 const AdminDashboard: React.FC = () => {
@@ -202,13 +202,6 @@ const AdminDashboard: React.FC = () => {
   const handleAddResource = () => {
     setResourceFormData({ title: '', url: '', type: 'PDF', grade: '12', category: 'handbook' });
     setIsResourceModalOpen(true);
-  };
-
-  const handleDeleteResource = (id: string | number) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa tài liệu này?")) {
-      const updated = deleteResource(id);
-      setResourceList(updated);
-    }
   };
 
   const handleSaveResource = (e: React.FormEvent) => {
@@ -588,7 +581,6 @@ const AdminDashboard: React.FC = () => {
                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phân loại</th>
                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lớp</th>
                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Link</th>
-                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Thao tác</th>
                  </tr>
                </thead>
                <tbody className="bg-white divide-y divide-gray-200">
@@ -615,20 +607,11 @@ const AdminDashboard: React.FC = () => {
                           {res.url}
                         </a>
                      </td>
-                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                       <button 
-                         onClick={() => handleDeleteResource(res.id)}
-                         className="text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
-                         title="Xóa tài liệu"
-                       >
-                         <Trash2 size={18} />
-                       </button>
-                     </td>
                    </tr>
                  ))}
                  {resourceList.length === 0 && (
                    <tr>
-                     <td colSpan={5} className="px-6 py-8 text-center text-gray-500 italic">
+                     <td colSpan={4} className="px-6 py-8 text-center text-gray-500 italic">
                        Chưa có tài liệu nào.
                      </td>
                    </tr>

@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
-import { BookOpen, GraduationCap, Github, Code, LogOut, User as UserIcon, LayoutDashboard, Facebook, Video, MessageCircle } from 'lucide-react';
+import { BookOpen, GraduationCap, Github, Code, LogOut, User as UserIcon, LayoutDashboard, Facebook, Video, MessageCircle, ListTodo } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/authService';
 import { User } from '../types';
+import TodoList from './TodoList';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,6 +14,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(getCurrentUser());
+  
+  // State for TodoList
+  const [isTodoListOpen, setIsTodoListOpen] = useState(false);
 
   // Lắng nghe sự kiện login/logout
   useEffect(() => {
@@ -100,6 +104,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="flex items-center">
                {user ? (
                  <div className="flex items-center gap-3 pl-4 border-l border-gray-200 ml-4">
+                   {/* TodoList Toggle */}
+                   <button
+                    onClick={() => setIsTodoListOpen(!isTodoListOpen)}
+                    className={`flex items-center justify-center w-9 h-9 rounded-full transition-all focus:outline-none relative ${
+                      isTodoListOpen 
+                        ? 'bg-indigo-600 text-white shadow-md ring-2 ring-indigo-300' 
+                        : 'text-gray-500 hover:bg-gray-100'
+                    }`}
+                    title="Việc cần làm"
+                   >
+                     <ListTodo size={18} />
+                   </button>
+
                    {/* User Profile */}
                    <div className="flex items-center gap-2">
                      <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 p-[2px] shadow-sm cursor-pointer group relative">
@@ -140,6 +157,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </div>
       </main>
+
+      {/* Global TodoList Component */}
+      <TodoList isOpen={isTodoListOpen} onClose={() => setIsTodoListOpen(false)} />
 
       {/* Footer */}
       {user && location.pathname !== '/login' && (

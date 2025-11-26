@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Copy, Check, Eye, Code, Save, Edit2, Bot, ExternalLink, X, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Eye, Code, Save, Edit2, Bot, ExternalLink, X, Sparkles, FolderPlus, FileText } from 'lucide-react';
 import Button from './Button';
 import MathText from './MathText';
 import { Example, EssayQuestion, MCQQuestion, SessionData } from '../types';
@@ -16,11 +16,19 @@ const ContentBuilder: React.FC = () => {
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiPromptCopied, setAiPromptCopied] = useState(false);
   
-  // Form State - Initialize with editData if available
+  // Mode State: 'session' (Bài học lẻ) or 'chapter' (Chương mới)
+  const [buildMode, setBuildMode] = useState<'session' | 'chapter'>('session');
+
+  // Chapter Form State
+  const [chapterId, setChapterId] = useState(`c_${Math.floor(Math.random() * 1000)}`);
+  const [chapterTitle, setChapterTitle] = useState('');
+  const [chapterDesc, setChapterDesc] = useState('');
+
+  // Session Form State - Initialize with editData if available
   const [id, setId] = useState(editData?.id || `s${Math.floor(Math.random() * 1000)}`);
   const [title, setTitle] = useState(editData?.title || '');
   const [desc, setDesc] = useState(editData?.description || '');
-  const [videoUrl, setVideoUrl] = useState(editData?.videoUrl || ''); // New state for video URL
+  const [videoUrl, setVideoUrl] = useState(editData?.videoUrl || '');
   const [theory, setTheory] = useState(editData?.theory || '');
   const [review, setReview] = useState(editData?.review || '');
   
@@ -119,8 +127,8 @@ Hãy bắt đầu! Dưới đây là nội dung bài học:
     // Escape backticks and ${} to prevent template literal injection
     const safe = (str: string) => str.replace(/`/g, "\\`").replace(/\${/g, "\\${");
     
-    // Construct the object string using backticks for content fields to support newlines
-    let code = `      {
+    // Generate Session Object Code
+    const sessionCode = `      {
         id: "${id}",
         title: \`${safe(title)}\`,
         description: \`${safe(desc)}\`,
@@ -152,8 +160,20 @@ ${mcqs.map(m => `          {
         ],
         review: \`${safe(review)}\`
       }`;
+
+    // If Mode is Chapter, wrap in Chapter Object
+    if (buildMode === 'chapter') {
+      return `      {
+        id: "${chapterId}",
+        title: \`${safe(chapterTitle)}\`,
+        description: \`${safe(chapterDesc)}\`,
+        sessions: [
+${sessionCode}
+        ]
+      }`;
+    }
       
-    return code;
+    return sessionCode;
   };
 
   const handleCopy = () => {
@@ -235,62 +255,145 @@ ${mcqs.map(m => `          {
           
           {/* STEP 1: General Info */}
           {step === 1 && (
-            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4 animate-in fade-in">
-              <h2 className="text-xl font-bold border-b pb-2 mb-4">Thông tin buổi học</h2>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ID Buổi học (Duy nhất, không dấu)</label>
-                <input 
-                  type="text" 
-                  value={id} 
-                  onChange={e => setId(e.target.value)} 
-                  className={`${inputClass} bg-gray-100 cursor-not-allowed`}
-                  readOnly={!!editData} // ID shouldn't change easily in edit mode to avoid breaking keys
-                  title={editData ? "Không nên đổi ID khi chỉnh sửa" : ""}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề buổi học</label>
-                <input 
-                  type="text" 
-                  value={title} 
-                  onChange={e => setTitle(e.target.value)} 
-                  placeholder="VD: Buổi 1: Tập hợp"
-                  className={inputClass}
-                />
-              </div>
+            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6 animate-in fade-in">
+              <h2 className="text-xl font-bold border-b pb-2 mb-4">Cấu trúc & Thông tin</h2>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả ngắn</label>
-                <textarea 
-                  value={desc} 
-                  onChange={e => setDesc(e.target.value)} 
-                  placeholder="Mô tả nội dung chính của bài học..."
-                  className={`${inputClass} h-20`}
-                />
-              </div>
+              {/* Build Mode Selection */}
+              {!editData && (
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                  <label className="block text-sm font-bold text-blue-900 mb-3 uppercase tracking-wider">Bạn muốn tạo gì?</label>
+                  <div className="flex gap-4">
+                    <button 
+                      onClick={() => setBuildMode('session')}
+                      className={`flex-1 p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
+                        buildMode === 'session' 
+                          ? 'border-blue-500 bg-white ring-2 ring-blue-200' 
+                          : 'border-transparent bg-white/50 hover:bg-white text-gray-500'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${buildMode === 'session' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100'}`}>
+                        <FileText size={24} />
+                      </div>
+                      <div>
+                        <div className="font-bold">Bài học lẻ</div>
+                        <div className="text-xs mt-1">Thêm bài vào chương có sẵn</div>
+                      </div>
+                      {buildMode === 'session' && <Check className="ml-auto text-blue-500" />}
+                    </button>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Link Video Bài Giảng (YouTube)</label>
-                <input 
-                  type="url" 
-                  value={videoUrl} 
-                  onChange={e => setVideoUrl(e.target.value)} 
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className={inputClass}
-                />
-                <p className="text-xs text-gray-500 mt-1">Hỗ trợ link YouTube. Video sẽ hiển thị ở đầu phần Lý thuyết.</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tổng kết bài học (Phần Nhắc lại)</label>
-                <textarea 
-                  value={review} 
-                  onChange={e => setReview(e.target.value)} 
-                  placeholder="Các ý chính cần ghi nhớ..."
-                  className={`${inputClass} h-24`}
-                />
+                    <button 
+                      onClick={() => setBuildMode('chapter')}
+                      className={`flex-1 p-4 rounded-xl border-2 text-left transition-all flex items-center gap-3 ${
+                        buildMode === 'chapter' 
+                          ? 'border-purple-500 bg-white ring-2 ring-purple-200' 
+                          : 'border-transparent bg-white/50 hover:bg-white text-gray-500'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${buildMode === 'chapter' ? 'bg-purple-100 text-purple-600' : 'bg-gray-100'}`}>
+                        <FolderPlus size={24} />
+                      </div>
+                      <div>
+                        <div className="font-bold">Chương mới</div>
+                        <div className="text-xs mt-1">Tạo chương kèm bài học đầu tiên</div>
+                      </div>
+                      {buildMode === 'chapter' && <Check className="ml-auto text-purple-500" />}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Chapter Info (Only if Chapter Mode) */}
+              {buildMode === 'chapter' && (
+                <div className="space-y-4 p-5 bg-purple-50 rounded-xl border border-purple-100">
+                  <h3 className="font-bold text-purple-900 flex items-center gap-2">
+                    <FolderPlus size={18} /> Thông tin Chương mới
+                  </h3>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mã Chương (ID)</label>
+                    <input 
+                      type="text" 
+                      value={chapterId} 
+                      onChange={e => setChapterId(e.target.value)} 
+                      className={`${inputClass} font-mono`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên Chương</label>
+                    <input 
+                      type="text" 
+                      value={chapterTitle} 
+                      onChange={e => setChapterTitle(e.target.value)} 
+                      placeholder="VD: Chương 1: Số tự nhiên"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả Chương</label>
+                    <textarea 
+                      value={chapterDesc} 
+                      onChange={e => setChapterDesc(e.target.value)} 
+                      placeholder="Mô tả tổng quan về chương này..."
+                      className={`${inputClass} h-20`}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Session Info */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-gray-900 border-b pb-2">Thông tin Buổi học</h3>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">ID Buổi học (Duy nhất)</label>
+                  <input 
+                    type="text" 
+                    value={id} 
+                    onChange={e => setId(e.target.value)} 
+                    className={`${inputClass} bg-gray-50 font-mono`}
+                    readOnly={!!editData}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tiêu đề buổi học</label>
+                  <input 
+                    type="text" 
+                    value={title} 
+                    onChange={e => setTitle(e.target.value)} 
+                    placeholder="VD: Buổi 1: Tập hợp"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả ngắn</label>
+                  <textarea 
+                    value={desc} 
+                    onChange={e => setDesc(e.target.value)} 
+                    placeholder="Mô tả nội dung chính của bài học..."
+                    className={`${inputClass} h-20`}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Link Video Bài Giảng (YouTube)</label>
+                  <input 
+                    type="url" 
+                    value={videoUrl} 
+                    onChange={e => setVideoUrl(e.target.value)} 
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className={inputClass}
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Tổng kết bài học (Phần Nhắc lại)</label>
+                  <textarea 
+                    value={review} 
+                    onChange={e => setReview(e.target.value)} 
+                    placeholder="Các ý chính cần ghi nhớ..."
+                    className={`${inputClass} h-24`}
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -463,7 +566,10 @@ ${mcqs.map(m => `          {
                   <Check className="w-5 h-5" /> Hoàn tất!
                 </h3>
                 <p className="text-green-700 mb-4">
-                  {editData ? "Dưới đây là mã nguồn đã chỉnh sửa." : "Dưới đây là mã nguồn cho bài học mới."} Hãy sao chép nó và cập nhật vào hệ thống.
+                  {buildMode === 'chapter' 
+                    ? "Dưới đây là mã nguồn cho CHƯƠNG MỚI (kèm bài học đầu tiên)." 
+                    : "Dưới đây là mã nguồn cho BÀI HỌC MỚI."} 
+                  Hãy sao chép nó và cập nhật vào hệ thống.
                 </p>
 
                 <div className="bg-gray-900 rounded-lg p-4 relative group">
@@ -486,12 +592,19 @@ ${mcqs.map(m => `          {
                 <h3 className="font-bold text-gray-900 mb-3">Hướng dẫn Cập nhật vào File Data:</h3>
                 <ol className="list-decimal list-inside space-y-2 text-gray-600 text-sm">
                   <li>Mở file <code>src/data.ts</code> trong trình soạn thảo code của bạn.</li>
-                  <li>Tìm đến phần bài học có ID là <code>"{id}"</code>.</li>
-                  {editData ? (
-                    <li>Xóa khối dữ liệu cũ của bài học này và dán khối dữ liệu mới vào vị trí đó.</li>
+                  
+                  {buildMode === 'chapter' ? (
+                    <>
+                      <li>Tìm đến object của Lớp tương ứng (VD: <code>"6": &#123; ... &#125;</code>).</li>
+                      <li>Dán toàn bộ mã vừa copy vào bên trong mảng <code>chapters: [ ... ]</code>.</li>
+                    </>
                   ) : (
-                    <li>Dán đoạn mã mới vào cuối danh sách <code>sessions</code> của lớp tương ứng.</li>
+                    <>
+                      <li>Tìm đến <strong>Chương</strong> mà bạn muốn thêm bài học.</li>
+                      <li>Dán mã vừa copy vào bên trong mảng <code>sessions: [ ... ]</code> của chương đó.</li>
+                    </>
                   )}
+                  
                   <li>Lưu file lại (Ctrl + S), ứng dụng sẽ tự động cập nhật!</li>
                 </ol>
               </div>
@@ -590,7 +703,7 @@ ${mcqs.map(m => `          {
                       <div className="flex-1">
                          <h4 className="font-bold text-gray-900 mb-1">Dán kết quả</h4>
                          <p className="text-sm text-gray-500">
-                           Copy đoạn JSON mà ChatGPT trả về, sau đó vào file code <code>src/data.ts</code> và dán vào danh sách bài học.
+                           Copy đoạn JSON mà ChatGPT trả về, sau đó vào công cụ Soạn bài và điền thủ công hoặc dán trực tiếp vào code nếu bạn rành kỹ thuật.
                          </p>
                       </div>
                    </div>

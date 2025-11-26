@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, BookOpen, BarChart2, Code, FileText, CheckSquare, Search, Edit, Bell, ShieldCheck, Key, Trash2, UserPlus, X, Save, FileQuestion, PenTool, FolderOpen, Plus, File, Copy, Check, GitBranch, Terminal, UploadCloud } from 'lucide-react';
@@ -50,11 +51,13 @@ const AdminDashboard: React.FC = () => {
     let totalMCQs = 0;
 
     grades.forEach(g => {
-      g.sessions.forEach(s => {
-        totalSessions++;
-        totalExamples += s.examples.length;
-        totalEssays += s.essays.length;
-        totalMCQs += s.mcqs.length;
+      g.chapters.forEach(c => {
+        c.sessions.forEach(s => {
+          totalSessions++;
+          totalExamples += s.examples.length;
+          totalEssays += s.essays.length;
+          totalMCQs += s.mcqs.length;
+        });
       });
     });
 
@@ -252,7 +255,7 @@ const AdminDashboard: React.FC = () => {
             className={`flex items-center gap-2 px-6 py-3 rounded-t-lg font-medium transition-all whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-white text-primary border-b-2 border-primary shadow-sm'
-                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
+                : 'text-gray-500 hover:text-gray-900 hover:text-gray-900 hover:bg-gray-100'
             }`}
           >
             <tab.icon size={18} />
@@ -343,7 +346,7 @@ const AdminDashboard: React.FC = () => {
                   Hệ thống hiện đang hoạt động ổn định trên nền tảng trình duyệt. 
                   Để đảm bảo an toàn dữ liệu, vui lòng thường xuyên sao lưu các bài giảng mới thông qua công cụ xuất mã nguồn.
                   <br/><br/>
-                  <em>Phiên bản: v1.0.9 - Hỗ trợ xuất mã nguồn Người dùng & Tài liệu</em>
+                  <em>Phiên bản: v1.1.0 - Hỗ trợ phân chia Chương cho bài học</em>
                 </p>
               </div>
               
@@ -378,54 +381,76 @@ const AdminDashboard: React.FC = () => {
           </div>
 
           <div className="grid gap-6">
-            {grades.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()) || g.sessions.some(s => s.title.toLowerCase().includes(searchTerm.toLowerCase()))).map(grade => (
-              <div key={grade.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center font-bold text-gray-700 shadow-sm">
-                      {grade.id}
+            {grades.filter(g => g.name.toLowerCase().includes(searchTerm.toLowerCase()) || g.chapters.some(c => c.sessions.some(s => s.title.toLowerCase().includes(searchTerm.toLowerCase())))).map(grade => {
+                // Filter sessions based on search
+                const filteredChapters = grade.chapters.map(c => ({
+                    ...c,
+                    sessions: c.sessions.filter(s => s.title.toLowerCase().includes(searchTerm.toLowerCase()))
+                })).filter(c => c.sessions.length > 0 || grade.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+                if (filteredChapters.length === 0 && !grade.name.toLowerCase().includes(searchTerm.toLowerCase())) return null;
+
+                const sessionCount = grade.chapters.reduce((acc, c) => acc + c.sessions.length, 0);
+
+                return (
+                  <div key={grade.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className="bg-gray-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-white border border-gray-200 rounded-lg flex items-center justify-center font-bold text-gray-700 shadow-sm">
+                          {grade.id}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-gray-900 text-lg">{grade.name}</h3>
+                          <p className="text-xs text-gray-500">{sessionCount} bài học</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900 text-lg">{grade.name}</h3>
-                      <p className="text-xs text-gray-500">{grade.sessions.length} bài học</p>
+
+                    <div className="divide-y divide-gray-100">
+                      {filteredChapters.map(chapter => (
+                        <div key={chapter.id} className="bg-white">
+                            {/* Chapter Header */}
+                            <div className="px-6 py-3 bg-gray-50/50 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                                <BookOpen size={14} /> {chapter.title}
+                            </div>
+                            
+                            {/* Sessions */}
+                            {chapter.sessions.map(session => (
+                                <div key={session.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-50 last:border-0">
+                                    <div className="flex-grow pl-4">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{session.id}</span>
+                                            <h4 className="font-bold text-gray-800">{session.title}</h4>
+                                        </div>
+                                        <p className="text-sm text-gray-500 line-clamp-1">{session.description}</p>
+                                        
+                                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 font-medium">
+                                            <span className="flex items-center gap-1"><FileText size={14}/> {session.examples.length} ví dụ</span>
+                                            <span className="flex items-center gap-1"><PenTool size={14}/> {session.essays.length} tự luận</span>
+                                            <span className="flex items-center gap-1"><CheckSquare size={14}/> {session.mcqs.length} trắc nghiệm</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                        <button 
+                                        onClick={() => handleEditSession(session)}
+                                        className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all"
+                                        title="Chỉnh sửa nội dung"
+                                        >
+                                        <Edit size={20} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                      ))}
+                      {grade.chapters.length === 0 && (
+                        <div className="p-8 text-center text-gray-500 italic">Chưa có bài học nào trong lớp này.</div>
+                      )}
                     </div>
                   </div>
-                </div>
-
-                <div className="divide-y divide-gray-100">
-                  {grade.sessions.filter(s => s.title.toLowerCase().includes(searchTerm.toLowerCase())).map(session => (
-                    <div key={session.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex-grow">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-xs font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded">{session.id}</span>
-                          <h4 className="font-bold text-gray-800">{session.title}</h4>
-                        </div>
-                        <p className="text-sm text-gray-500 line-clamp-1">{session.description}</p>
-                        
-                        <div className="flex items-center gap-4 mt-3 text-xs text-gray-500 font-medium">
-                           <span className="flex items-center gap-1"><FileText size={14}/> {session.examples.length} ví dụ</span>
-                           <span className="flex items-center gap-1"><PenTool size={14}/> {session.essays.length} tự luận</span>
-                           <span className="flex items-center gap-1"><CheckSquare size={14}/> {session.mcqs.length} trắc nghiệm</span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <button 
-                          onClick={() => handleEditSession(session)}
-                          className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-all"
-                          title="Chỉnh sửa nội dung"
-                        >
-                          <Edit size={20} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                  {grade.sessions.length === 0 && (
-                    <div className="p-8 text-center text-gray-500 italic">Chưa có bài học nào trong lớp này.</div>
-                  )}
-                </div>
-              </div>
-            ))}
+                );
+            })}
           </div>
         </div>
       )}

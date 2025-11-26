@@ -68,10 +68,17 @@ export interface SessionData {
   review: string; // Summary/Mindmap text
 }
 
+export interface ChapterData {
+  id: string;
+  title: string;
+  description?: string;
+  sessions: SessionData[];
+}
+
 export interface GradeData {
   id: string;
   name: string;
-  sessions: SessionData[];
+  chapters: ChapterData[];
 }
 
 export type SectionType = 'theory' | 'examples' | 'essay' | 'mcq' | 'review';

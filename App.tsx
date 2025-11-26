@@ -324,12 +324,14 @@ const ProgressPage = () => {
   const userProfile = useMemo(() => {
     let xp = 0;
     Object.values(MATH_DATA).forEach(grade => {
-      grade.sessions.forEach(session => {
-        if (isSectionCompleted(session.id, 'theory')) xp += 20;
-        if (isSectionCompleted(session.id, 'examples')) xp += 20;
-        if (isSectionCompleted(session.id, 'review')) xp += 20;
-        if (isSectionCompleted(session.id, 'essay')) xp += 20;
-        if (isSectionCompleted(session.id, 'mcq')) xp += 20;
+      grade.chapters.forEach(chapter => {
+        chapter.sessions.forEach(session => {
+          if (isSectionCompleted(session.id, 'theory')) xp += 20;
+          if (isSectionCompleted(session.id, 'examples')) xp += 20;
+          if (isSectionCompleted(session.id, 'review')) xp += 20;
+          if (isSectionCompleted(session.id, 'essay')) xp += 20;
+          if (isSectionCompleted(session.id, 'mcq')) xp += 20;
+        });
       });
     });
 
@@ -401,33 +403,35 @@ const ProgressPage = () => {
     let nextS = null;
 
     gradesToProcess.forEach(grade => {
-      grade.sessions.forEach(session => {
-        totalS++;
-        
-        theoryItemsTotal += 3; 
-        practiceItemsTotal += 2;
-        
-        if (isSectionCompleted(session.id, 'theory')) theoryItemsDone++;
-        if (isSectionCompleted(session.id, 'examples')) theoryItemsDone++;
-        if (isSectionCompleted(session.id, 'review')) theoryItemsDone++;
-        
-        if (isSectionCompleted(session.id, 'essay')) practiceItemsDone++;
-        if (isSectionCompleted(session.id, 'mcq')) practiceItemsDone++;
+      grade.chapters.forEach(chapter => {
+        chapter.sessions.forEach(session => {
+          totalS++;
+          
+          theoryItemsTotal += 3; 
+          practiceItemsTotal += 2;
+          
+          if (isSectionCompleted(session.id, 'theory')) theoryItemsDone++;
+          if (isSectionCompleted(session.id, 'examples')) theoryItemsDone++;
+          if (isSectionCompleted(session.id, 'review')) theoryItemsDone++;
+          
+          if (isSectionCompleted(session.id, 'essay')) practiceItemsDone++;
+          if (isSectionCompleted(session.id, 'mcq')) practiceItemsDone++;
 
-        const completion = getSessionCompletion(session.id);
-        totalScore += completion;
-        
-        if (completion === 100) {
-          completedS++;
-        } else if (!foundNext && !nextS) {
-          nextS = {
-            gradeId: grade.id,
-            sessionId: session.id,
-            title: session.title,
-            gradeName: grade.name
-          };
-          foundNext = true;
-        }
+          const completion = getSessionCompletion(session.id);
+          totalScore += completion;
+          
+          if (completion === 100) {
+            completedS++;
+          } else if (!foundNext && !nextS) {
+            nextS = {
+              gradeId: grade.id,
+              sessionId: session.id,
+              title: session.title,
+              gradeName: grade.name
+            };
+            foundNext = true;
+          }
+        });
       });
     });
 
@@ -661,7 +665,7 @@ const ProgressPage = () => {
         {dashboardStats.gradesData.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {dashboardStats.gradesData.map(grade => {
-              const sessions = grade.sessions;
+              const sessions = grade.chapters.flatMap(c => c.sessions);
               
               // Calculate specific stats for this grade
               let gTheoryTotal = 0, gTheoryDone = 0;
@@ -750,14 +754,16 @@ const HomePage = () => {
     const results: { gradeId: string; gradeName: string; session: SessionData }[] = [];
     
     Object.values(MATH_DATA).forEach(grade => {
-      grade.sessions.forEach(session => {
-        if (session.title.toLowerCase().includes(term) || session.description.toLowerCase().includes(term)) {
-          results.push({
-            gradeId: grade.id,
-            gradeName: grade.name,
-            session
-          });
-        }
+      grade.chapters.forEach(chapter => {
+        chapter.sessions.forEach(session => {
+          if (session.title.toLowerCase().includes(term) || session.description.toLowerCase().includes(term)) {
+            results.push({
+              gradeId: grade.id,
+              gradeName: grade.name,
+              session
+            });
+          }
+        });
       });
     });
     return results.slice(0, 5); // Limit to 5 results
@@ -1007,48 +1013,70 @@ const GradeOverviewPage = () => {
       </div>
 
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Danh sách buổi học</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Danh sách bài học</h2>
         <p className="text-gray-600">Lộ trình học tập chi tiết cho {gradeData.name}</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {gradeData.sessions.map((session) => {
-          const progress = getSessionCompletion(session.id);
-          
-          return (
-            <Link
-              key={session.id}
-              to={`/grade/${gradeId}/session/${session.id}`}
-              className="flex flex-col bg-white p-6 rounded-3xl shadow-md border-t-4 border-blue-500 hover:shadow-xl transition-all group relative overflow-hidden hover:-translate-y-1"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-lg transition-colors shadow-sm ${progress === 100 ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
-                  {progress === 100 ? <CheckCircle2 size={24} /> : <PlayCircle size={24} />}
-                </div>
-                <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
-                  5 phần học
-                </span>
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
-                {session.title}
+      <div className="space-y-12">
+        {gradeData.chapters.map((chapter) => (
+          <div key={chapter.id} className="space-y-6">
+            <div className="flex items-center gap-4">
+              <h3 className="text-2xl font-bold text-gray-800 bg-gray-100 px-4 py-2 rounded-lg border-l-4 border-primary shadow-sm">
+                {chapter.title}
               </h3>
-              <p className="text-sm text-gray-500 line-clamp-2 mb-6 flex-grow leading-relaxed">
-                {session.description}
-              </p>
-              
-              {/* Progress Bar */}
-              <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden border border-gray-100">
-                 <div 
-                   className={`h-full transition-all duration-700 rounded-full shadow-sm ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`} 
-                   style={{ width: `${progress}%` }}
-                 ></div>
-              </div>
-              <div className="mt-2 text-xs text-right text-gray-500 font-bold">
-                {progress}% Hoàn thành
-              </div>
-            </Link>
-          );
-        })}
+              {chapter.description && <p className="text-gray-500 hidden md:block text-sm pt-1">{chapter.description}</p>}
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {chapter.sessions.length > 0 ? (
+                chapter.sessions.map((session) => {
+                  const progress = getSessionCompletion(session.id);
+                  
+                  return (
+                    <Link
+                      key={session.id}
+                      to={`/grade/${gradeId}/session/${session.id}`}
+                      className="flex flex-col bg-white p-6 rounded-3xl shadow-md border-t-4 border-blue-500 hover:shadow-xl transition-all group relative overflow-hidden hover:-translate-y-1"
+                    >
+                      <div className="flex items-start justify-between mb-4">
+                        <div className={`p-3 rounded-lg transition-colors shadow-sm ${progress === 100 ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                          {progress === 100 ? <CheckCircle2 size={24} /> : <PlayCircle size={24} />}
+                        </div>
+                        <span className="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-full border border-gray-200">
+                          5 phần học
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-700 transition-colors">
+                        {session.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 line-clamp-2 mb-6 flex-grow leading-relaxed">
+                        {session.description}
+                      </p>
+                      
+                      {/* Progress Bar */}
+                      <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden border border-gray-100">
+                        <div 
+                          className={`h-full transition-all duration-700 rounded-full shadow-sm ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'}`} 
+                          style={{ width: `${progress}%` }}
+                        ></div>
+                      </div>
+                      <div className="mt-2 text-xs text-right text-gray-500 font-bold">
+                        {progress}% Hoàn thành
+                      </div>
+                    </Link>
+                  );
+                })
+              ) : (
+                <div className="col-span-full py-4 text-gray-400 italic text-sm pl-4 border-l-2 border-gray-200">
+                  Nội dung chương này đang được cập nhật...
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {gradeData.chapters.length === 0 && (
+           <div className="text-center py-10 text-gray-500">Chưa có chương học nào được tạo.</div>
+        )}
       </div>
     </div>
   );
@@ -1058,7 +1086,9 @@ const GradeOverviewPage = () => {
 const SessionPage = () => {
   const { gradeId, sessionId } = useParams<{ gradeId: string; sessionId: string }>();
   const gradeData = gradeId ? MATH_DATA[gradeId] : null;
-  const session = gradeData?.sessions.find(s => s.id === sessionId);
+  // Flatten sessions to find the specific one
+  const session = gradeData?.chapters.flatMap(c => c.sessions).find(s => s.id === sessionId);
+  
   const [activeTab, setActiveTab] = useState<SectionType>('theory');
   // State to force re-render on progress update
   const [progressVersion, setProgressVersion] = useState(0);

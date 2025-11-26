@@ -1,3 +1,4 @@
+
 import { User } from "../types";
 
 // ============================================================================
@@ -11,7 +12,7 @@ const MOCK_USERS_SEED: (User & { password: string })[] = [
     id: "admin_01",
     username: "admin",
     password: "123",
-    name: "Quản Trị Viên",
+    name: "Tonton Yuta",
     role: "admin",
     avatar: "A"
   },
@@ -19,7 +20,7 @@ const MOCK_USERS_SEED: (User & { password: string })[] = [
     id: "hs_01",
     username: "hocsinh1",
     password: "123",
-    name: "Nguyễn Văn A",
+    name: "Trần Huy Hoàng",
     role: "student",
     avatar: "H1"
   },
@@ -83,6 +84,41 @@ export const login = (username: string, password: string): Promise<User> => {
       } else {
         reject(new Error("Tên đăng nhập hoặc mật khẩu không đúng"));
       }
+    }, 800);
+  });
+};
+
+export const register = (username: string, password: string, name: string): Promise<User> => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      const users = getUsersFromDB();
+      
+      // Kiểm tra trùng username
+      if (users.some(u => u.username === username)) {
+        reject(new Error("Tên đăng nhập đã tồn tại, vui lòng chọn tên khác."));
+        return;
+      }
+
+      // Tạo user mới
+      const newUser = {
+        id: `hs_${Date.now()}`,
+        username,
+        password,
+        name,
+        role: 'student' as const,
+        avatar: name.charAt(0).toUpperCase()
+      };
+
+      // Lưu vào DB
+      users.push(newUser);
+      saveUsersToDB(users);
+
+      // Tự động đăng nhập
+      const { password: _, ...safeUser } = newUser;
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(safeUser));
+      window.dispatchEvent(new Event("auth-change"));
+      
+      resolve(safeUser);
     }, 800);
   });
 };

@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login, isAuthenticated } from '../services/authService';
-import { GraduationCap, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
+import { register, isAuthenticated } from '../services/authService';
+import { GraduationCap, Lock, User, ArrowRight, AlertCircle, UserPlus, CheckCircle } from 'lucide-react';
 import Button from './Button';
 
-const LoginPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
+  const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -22,20 +24,27 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (password !== confirmPassword) {
+      setError('Mật khẩu nhập lại không khớp.');
+      return;
+    }
+
+    if (password.length < 3) {
+      setError('Mật khẩu phải có ít nhất 3 ký tự.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const user = await login(username, password);
+      await register(username, password, name);
       setLoading(false);
-      // Điều hướng dựa trên role
-      if (user.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      // Đăng ký thành công -> chuyển về trang chủ (authService đã tự login)
+      navigate('/');
     } catch (err: any) {
       setLoading(false);
-      setError(err.message || 'Đăng nhập thất bại');
+      setError(err.message || 'Đăng ký thất bại');
     }
   };
 
@@ -48,22 +57,43 @@ const LoginPage: React.FC = () => {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Đăng nhập hệ thống
+          Đăng ký học viên mới
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Ứng dụng Dạy Toán trực tuyến
+          Tạo tài khoản để bắt đầu hành trình học Toán
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 border border-gray-100">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm">
-                <AlertCircle size={16} />
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2 text-sm animate-in fade-in slide-in-from-top-1">
+                <AlertCircle size={16} className="flex-shrink-0" />
                 {error}
               </div>
             )}
+
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Họ và tên
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <UserPlus className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary focus:border-primary focus:bg-white block w-full pl-10 py-3 transition-colors sm:text-sm"
+                  placeholder="VD: Nguyễn Văn A"
+                />
+              </div>
+            </div>
 
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
@@ -81,7 +111,7 @@ const LoginPage: React.FC = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary focus:border-primary focus:bg-white block w-full pl-10 py-3 transition-colors sm:text-sm"
-                  placeholder="Nhập tên đăng nhập"
+                  placeholder="VD: hocsinh123"
                 />
               </div>
             </div>
@@ -108,13 +138,34 @@ const LoginPage: React.FC = () => {
             </div>
 
             <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                Nhập lại mật khẩu
+              </label>
+              <div className="mt-1 relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <CheckCircle className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary focus:border-primary focus:bg-white block w-full pl-10 py-3 transition-colors sm:text-sm"
+                  placeholder="Nhập lại mật khẩu"
+                />
+              </div>
+            </div>
+
+            <div className="pt-2">
               <Button
                 type="submit"
                 variant="primary"
                 disabled={loading}
                 className="w-full flex justify-center py-3"
               >
-                {loading ? 'Đang xử lý...' : 'Đăng nhập'}
+                {loading ? 'Đang tạo tài khoản...' : 'Đăng ký ngay'}
                 {!loading && <ArrowRight className="ml-2 h-4 w-4" />}
               </Button>
             </div>
@@ -127,17 +178,17 @@ const LoginPage: React.FC = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-white text-gray-500">
-                  Chưa có tài khoản?
+                  Đã có tài khoản?
                 </span>
               </div>
             </div>
 
             <div className="mt-6">
               <Link
-                to="/register"
+                to="/login"
                 className="w-full flex justify-center py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
               >
-                Đăng ký ngay
+                Đăng nhập ngay
               </Link>
             </div>
           </div>
@@ -147,4 +198,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default RegisterPage;

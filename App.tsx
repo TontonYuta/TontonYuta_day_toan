@@ -7,13 +7,29 @@ import { GradeLevel, SessionData, SectionType, Resource } from './types';
 import { TheoryView, ExamplesView, EssayView, MCQView, ReviewView } from './components/SessionViews';
 import ContentBuilder from './components/ContentBuilder';
 import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 import AdminDashboard from './components/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import UserGuide from './components/UserGuide';
-import { BookOpen, FileText, PenTool, CheckSquare, RefreshCw, ChevronRight, PlayCircle, Award, ArrowRight, Star, Trophy, CheckCircle2, Search, Filter, Download, File, FileSpreadsheet, FolderOpen, Layers, GraduationCap, Flame, Zap, Target, BarChart2, Rocket, Medal } from 'lucide-react';
+import { BookOpen, FileText, PenTool, CheckSquare, RefreshCw, ChevronRight, PlayCircle, Award, ArrowRight, Star, Trophy, CheckCircle2, Search, Filter, Download, File, FileSpreadsheet, FolderOpen, Layers, GraduationCap, Flame, Zap, Target, BarChart2, Rocket, Medal, Facebook, MessageCircle, Video, Heart, Share2, Phone } from 'lucide-react';
 import { getSessionCompletion, isSectionCompleted, markSectionComplete, resetSectionProgress, getProgress } from './services/progressService';
 import { getCurrentUser, getAllUsers } from './services/authService';
 import { getResources } from './services/resourceService';
+
+// --- CONFIG: TEACHER INFO ---
+const TEACHER_INFO = {
+  name: "Thầy TontonYuta",
+  role: "Giáo viên Toán & Lập trình",
+  bio: "Đồng hành cùng các em chinh phục điểm 10 môn Toán bằng phương pháp tư duy đơn giản hóa.",
+  avatar: "https://i.pinimg.com/originals/2c/8e/1d/2c8e1de27b47747e38f4168436965e88.jpg", // Avatar placeholder
+  links: {
+    facebook: "https://www.facebook.com/yuta.primer",
+    tiktok: "https://www.tiktok.com/@tontons.yuta",
+    zalo: "https://zalo.me/0963278149",
+    youtube: "https://www.youtube.com/@hoctoancungyuta",
+    donate: "https://img.vietqr.io/image/MB-0963278149-compact.jpg" // Ví dụ link QR
+  }
+};
 
 // --- Components: Visual Charts ---
 
@@ -111,7 +127,7 @@ const ResourcesPage = () => {
   return (
     <div className="space-y-8 pb-12">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-8 text-white shadow-xl">
+      <div className="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-3xl p-8 text-white shadow-xl">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -134,7 +150,7 @@ const ResourcesPage = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filter (Desktop) */}
         <div className="w-full lg:w-64 flex-shrink-0 space-y-6">
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-md sticky top-24">
+          <div className="bg-white p-5 rounded-3xl border border-gray-200 shadow-md sticky top-24">
             <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2 text-lg border-b pb-2">
               <Filter size={20} className="text-primary"/>
               Lọc theo Lớp
@@ -144,7 +160,7 @@ const ResourcesPage = () => {
                 <button
                   key={g.id}
                   onClick={() => setActiveGrade(g.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-all flex justify-between items-center ${
+                  className={`w-full text-left px-4 py-3 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
                     activeGrade === g.id 
                       ? 'bg-primary text-white shadow-md' 
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -157,7 +173,7 @@ const ResourcesPage = () => {
             </div>
           </div>
 
-          <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm">
+          <div className="bg-blue-50 p-5 rounded-3xl border border-blue-100 shadow-sm">
              <h4 className="font-bold text-blue-800 mb-2 text-sm uppercase">Mẹo tìm kiếm</h4>
              <p className="text-sm text-blue-600 leading-relaxed">
                Sử dụng từ khóa như "đề thi", "hình học", "đại số" để tìm nhanh tài liệu bạn cần.
@@ -168,13 +184,13 @@ const ResourcesPage = () => {
         {/* Main Content */}
         <div className="flex-1 space-y-6">
           {/* Search & Category Filter */}
-          <div className="bg-white p-4 rounded-xl shadow-md border border-gray-200">
+          <div className="bg-white p-4 rounded-3xl shadow-md border border-gray-200">
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
               <input 
                 type="text" 
                 placeholder="Tìm kiếm tài liệu (VD: Vectơ, Hàm số...)" 
-                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
+                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-300 rounded-2xl text-gray-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-inner"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -207,7 +223,7 @@ const ResourcesPage = () => {
           {/* Grid Layout */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {filteredResources.map((item) => (
-              <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-xl hover:-translate-y-1 transition-all group relative">
+              <div key={item.id} className="bg-white rounded-3xl border border-gray-200 p-5 hover:shadow-xl hover:-translate-y-1 transition-all group relative">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-3">
                     <div className={`p-2.5 rounded-lg shadow-sm ${
@@ -251,7 +267,7 @@ const ResourcesPage = () => {
             ))}
             
             {filteredResources.length === 0 && (
-              <div className="col-span-full bg-white rounded-xl p-12 text-center border-2 border-dashed border-gray-200 shadow-sm">
+              <div className="col-span-full bg-white rounded-3xl p-12 text-center border-2 border-dashed border-gray-200 shadow-sm">
                 <div className="inline-flex p-4 bg-gray-50 rounded-full shadow-inner mb-4">
                   <Search className="h-8 w-8 text-gray-300" />
                 </div>
@@ -471,7 +487,7 @@ const ProgressPage = () => {
             </div>
 
             {/* Grade Filter Bar */}
-            <div className="bg-white p-3 rounded-2xl shadow-sm border border-gray-200">
+            <div className="bg-white p-3 rounded-3xl shadow-sm border border-gray-200">
               <div className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 px-1 no-scrollbar">
                 {gradeOptions.map((opt) => (
                   <button
@@ -492,7 +508,7 @@ const ProgressPage = () => {
             {/* Suggested Lesson */}
             {dashboardStats.nextSession ? (
               <div 
-                className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 transform hover:scale-[1.01] transition-transform cursor-pointer border-t-4 border-indigo-400"
+                className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-3xl p-6 text-white shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 transform hover:scale-[1.01] transition-transform cursor-pointer border-t-4 border-indigo-400"
                 onClick={() => navigate(`/grade/${dashboardStats.nextSession?.gradeId}/session/${dashboardStats.nextSession?.sessionId}`)}
               >
                 <div className="flex items-center gap-4">
@@ -512,7 +528,7 @@ const ProgressPage = () => {
                 </button>
               </div>
             ) : (
-              <div className="bg-green-100 border border-green-200 rounded-2xl p-6 text-green-800 shadow-sm flex items-center justify-center gap-4">
+              <div className="bg-green-100 border border-green-200 rounded-3xl p-6 text-green-800 shadow-sm flex items-center justify-center gap-4">
                 <Trophy size={32} className="text-green-600" />
                 <div>
                   <h2 className="text-xl font-bold">Tuyệt vời! Bạn đã hoàn thành tất cả bài học {activeGradeFilter !== 'all' ? `của ${gradeOptions.find(g => g.id === activeGradeFilter)?.label}` : ''}.</h2>
@@ -523,14 +539,14 @@ const ProgressPage = () => {
 
             {/* Main Stats Dashboard */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col items-center justify-center min-h-[200px]">
+              <div className="bg-white p-6 rounded-3xl shadow-md border border-gray-100 flex flex-col items-center justify-center min-h-[200px]">
                 <h3 className="text-gray-500 font-semibold mb-4 flex items-center gap-2">
                   <Target size={18} /> Độ phủ kiến thức
                 </h3>
                 <CircularProgress percentage={dashboardStats.totalPercent} size={140} color="text-primary" />
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col justify-between">
+              <div className="bg-white p-6 rounded-3xl shadow-md border border-gray-100 flex flex-col justify-between">
                 <h3 className="text-gray-500 font-semibold mb-4 flex items-center gap-2">
                   <BarChart2 size={18} /> Phân tích kỹ năng
                 </h3>
@@ -556,7 +572,7 @@ const ProgressPage = () => {
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex flex-col">
+              <div className="bg-white p-6 rounded-3xl shadow-md border border-gray-100 flex flex-col">
                 <h3 className="text-gray-500 font-semibold mb-6 flex items-center gap-2">
                   <Flame size={18} className="text-orange-500" /> Chuỗi ngày học
                 </h3>
@@ -572,7 +588,7 @@ const ProgressPage = () => {
                     </div>
                   ))}
                 </div>
-                <div className="mt-auto bg-gray-50 rounded-xl p-4 flex items-center justify-between border border-gray-200">
+                <div className="mt-auto bg-gray-50 rounded-2xl p-4 flex items-center justify-between border border-gray-200">
                   <div>
                     <div className="text-xs text-gray-500 uppercase font-bold">Đã hoàn thành</div>
                     <div className="text-2xl font-bold text-gray-800">
@@ -589,7 +605,7 @@ const ProgressPage = () => {
 
         {/* Right Column: Leaderboard */}
         <div className="lg:col-span-1 space-y-8">
-           <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+           <div className="bg-white rounded-3xl shadow-md border border-gray-100 overflow-hidden">
               <div className="bg-gradient-to-r from-yellow-400 to-orange-500 p-6 text-white text-center relative shadow-md">
                  <Medal size={40} className="mx-auto mb-2 text-white drop-shadow-md" />
                  <h3 className="font-bold text-xl">Bảng xếp hạng</h3>
@@ -606,7 +622,7 @@ const ProgressPage = () => {
                     if (isTop3) rankBg = "bg-orange-100 text-orange-700 shadow-sm border-orange-200 border";
 
                     return (
-                       <div key={user.id} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-xl transition-colors mb-2 border border-transparent hover:border-gray-200">
+                       <div key={user.id} className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-2xl transition-colors mb-2 border border-transparent hover:border-gray-200">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${rankBg}`}>
                              {idx + 1}
                           </div>
@@ -667,10 +683,10 @@ const ProgressPage = () => {
               const gAvg = Math.round((gTheoryP + gPracP) / 2);
 
               return (
-                <div key={grade.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all hover:-translate-y-1">
+                <div key={grade.id} className="bg-white rounded-3xl border border-gray-200 p-6 hover:shadow-lg transition-all hover:-translate-y-1">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-2xl flex items-center justify-center font-bold text-lg shadow-md">
                         {grade.name.replace("Lớp ", "")}
                       </div>
                       <div>
@@ -715,7 +731,7 @@ const ProgressPage = () => {
             })}
           </div>
         ) : (
-           <div className="text-center py-10 text-gray-500 italic bg-white rounded-xl shadow-sm">Không có dữ liệu cho lớp này.</div>
+           <div className="text-center py-10 text-gray-500 italic bg-white rounded-3xl shadow-sm">Không có dữ liệu cho lớp này.</div>
         )}
       </div>
     </div>
@@ -797,7 +813,7 @@ const HomePage = () => {
 
                {/* Search Results Dropdown */}
                {searchTerm && (
-                 <div className="absolute z-[100] w-full mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden text-left animate-in fade-in slide-in-from-top-2">
+                 <div className="absolute z-[100] w-full mt-2 bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden text-left animate-in fade-in slide-in-from-top-2">
                     {searchResults.length > 0 ? (
                       <div>
                         <div className="px-4 py-2 bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider border-b border-gray-100">Kết quả tìm kiếm</div>
@@ -865,7 +881,7 @@ const HomePage = () => {
                desc: "Nội dung bám sát chương trình giáo dục phổ thông mới, tài liệu chi tiết giúp tự học dễ dàng tại nhà." 
              }
            ].map((item, idx) => (
-             <div key={idx} className="bg-white p-8 rounded-2xl shadow-md border border-gray-100 hover:shadow-xl hover:border-blue-100 transition-all group hover:-translate-y-1">
+             <div key={idx} className="bg-white p-8 rounded-3xl shadow-md border border-gray-100 hover:shadow-xl hover:border-blue-100 transition-all group hover:-translate-y-1">
                 <div className={`w-14 h-14 ${item.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
                    <item.icon size={28} />
                 </div>
@@ -873,6 +889,48 @@ const HomePage = () => {
                 <p className="text-gray-500 leading-relaxed">{item.desc}</p>
              </div>
            ))}
+        </div>
+      </section>
+
+      {/* Teacher Section */}
+      <section className="max-w-4xl mx-auto px-4 relative z-10">
+        <div className="bg-white rounded-3xl p-8 border border-gray-100 shadow-xl flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+          {/* Decorative Blob */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-blue-100 to-transparent rounded-full filter blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+          
+          <div className="flex-shrink-0 relative">
+            <div className="w-28 h-28 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 p-[3px] shadow-lg">
+              <img 
+                src={TEACHER_INFO.avatar} 
+                alt="Teacher Avatar" 
+                className="w-full h-full rounded-full bg-white object-cover p-1"
+              />
+            </div>
+            <div className="absolute -bottom-2 -right-2 bg-yellow-400 text-yellow-900 p-2 rounded-full shadow-md border-2 border-white">
+              <Star size={16} fill="currentColor" />
+            </div>
+          </div>
+          
+          <div className="text-center md:text-left flex-grow">
+            <h3 className="text-indigo-600 font-bold uppercase tracking-wider text-xs mb-1">Góc Giáo Viên</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{TEACHER_INFO.name}</h2>
+            <p className="text-gray-600 mb-6 max-w-lg">{TEACHER_INFO.bio}</p>
+            
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+              <a href={TEACHER_INFO.links.facebook} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-full hover:bg-blue-100 transition-colors font-medium text-sm">
+                <Facebook size={18} /> Facebook
+              </a>
+              <a href={TEACHER_INFO.links.tiktok} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-gray-50 text-gray-800 rounded-full hover:bg-gray-200 transition-colors font-medium text-sm">
+                <Video size={18} /> TikTok
+              </a>
+               <a href={TEACHER_INFO.links.zalo} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full hover:bg-blue-100 transition-colors font-medium text-sm">
+                <MessageCircle size={18} /> Zalo
+              </a>
+              <a href={TEACHER_INFO.links.donate} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2 bg-yellow-50 text-yellow-700 rounded-full hover:bg-yellow-100 transition-colors font-medium text-sm border border-yellow-200">
+                <Heart size={18} fill="currentColor" className="text-yellow-500" /> Donate
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -892,7 +950,7 @@ const HomePage = () => {
               <Link
                 key={grade}
                 to={hasData ? `/grade/${gradeId}` : '#'}
-                className={`group relative overflow-hidden rounded-2xl p-6 transition-all duration-300 border flex flex-col items-center ${
+                className={`group relative overflow-hidden rounded-3xl p-6 transition-all duration-300 border flex flex-col items-center ${
                   hasData 
                     ? 'bg-white shadow-md hover:shadow-xl border-gray-200 hover:border-primary/50 cursor-pointer hover:-translate-y-2' 
                     : 'bg-gray-100 border-gray-200 cursor-not-allowed opacity-60 grayscale'
@@ -948,7 +1006,7 @@ const GradeOverviewPage = () => {
         <span className="font-semibold text-gray-900 bg-white px-2 py-1 rounded shadow-sm">{gradeData.name}</span>
       </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+      <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Danh sách buổi học</h2>
         <p className="text-gray-600">Lộ trình học tập chi tiết cho {gradeData.name}</p>
       </div>
@@ -961,7 +1019,7 @@ const GradeOverviewPage = () => {
             <Link
               key={session.id}
               to={`/grade/${gradeId}/session/${session.id}`}
-              className="flex flex-col bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500 hover:shadow-xl transition-all group relative overflow-hidden hover:-translate-y-1"
+              className="flex flex-col bg-white p-6 rounded-3xl shadow-md border-t-4 border-blue-500 hover:shadow-xl transition-all group relative overflow-hidden hover:-translate-y-1"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className={`p-3 rounded-lg transition-colors shadow-sm ${progress === 100 ? 'bg-green-100 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
@@ -1054,7 +1112,7 @@ const SessionPage = () => {
           <span className="font-semibold text-gray-900 truncate bg-white px-2 py-0.5 rounded shadow-sm">{session.title}</span>
         </div>
         
-        <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="bg-white p-6 rounded-3xl shadow-md border border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
            <div>
              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{session.title}</h1>
              <p className="text-gray-600">{session.description}</p>
@@ -1073,8 +1131,8 @@ const SessionPage = () => {
       </div>
 
       {/* Tabs Navigation */}
-      <div className="sticky top-16 z-30 bg-slate-100/95 backdrop-blur supports-[backdrop-filter]:bg-slate-100/60 py-2 no-print rounded-xl">
-        <div className="flex space-x-2 p-1 bg-white border border-gray-200 rounded-xl overflow-x-auto no-scrollbar shadow-sm">
+      <div className="sticky top-16 z-30 bg-slate-100/95 backdrop-blur supports-[backdrop-filter]:bg-slate-100/60 py-2 no-print rounded-3xl">
+        <div className="flex space-x-2 p-1 bg-white border border-gray-200 rounded-3xl overflow-x-auto no-scrollbar shadow-sm">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -1084,7 +1142,7 @@ const SessionPage = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-lg transition-all whitespace-nowrap relative ${
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold rounded-2xl transition-all whitespace-nowrap relative ${
                   isActive
                     ? 'bg-primary text-white shadow-md transform scale-105'
                     : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
@@ -1154,6 +1212,7 @@ const App: React.FC = () => {
         <Routes>
           {/* Public Route */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
 
           {/* Admin Routes */}
           <Route 

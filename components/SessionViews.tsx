@@ -14,10 +14,19 @@ interface ViewProps {
 // --- Helper: Get Embed URL from YouTube Link ---
 const getYoutubeEmbedUrl = (url: string) => {
   if (!url) return null;
-  // Handle youtube.com/watch?v=ID
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+  
+  try {
+    // Regex to capture video ID from various YouTube URL formats (standard, short, embed, shorts)
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = url.match(regExp);
+    
+    // Return embed URL with parameters:
+    // rel=0: Don't show related videos from other channels
+    // playsinline=1: Play inline on iOS
+    return (match && match[1]) ? `https://www.youtube.com/embed/${match[1]}?rel=0&playsinline=1` : null;
+  } catch (error) {
+    return null;
+  }
 };
 
 // --- Helper Component for Completion Button ---

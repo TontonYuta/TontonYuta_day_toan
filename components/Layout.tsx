@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { BookOpen, GraduationCap, Github, Code, LogOut, User as UserIcon, LayoutDashboard } from 'lucide-react';
+import { BookOpen, GraduationCap, Github, Code, LogOut, User as UserIcon, LayoutDashboard, Facebook, Video, MessageCircle } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { getCurrentUser, logout } from '../services/authService';
 import { User } from '../types';
@@ -42,33 +42,32 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-100">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50 no-print shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      {/* Floating Navbar */}
+      <div className="sticky top-4 z-50 px-4 sm:px-6 lg:px-8 no-print">
+        <header className="max-w-7xl mx-auto bg-white/90 backdrop-blur-md border border-white/20 shadow-lg rounded-full px-6 py-3 transition-all">
+          <div className="flex justify-between items-center">
             <Link to={user?.role === 'admin' ? '/admin' : '/'} className="flex items-center space-x-2 group">
-              <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
-                <GraduationCap className="h-8 w-8 text-primary" />
+              <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-full shadow-md group-hover:scale-110 transition-transform">
+                <GraduationCap className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 leading-none">Dạy Toán</h1>
-                <p className="text-xs text-gray-500 font-medium">Học Toán Thông Minh</p>
+                <h1 className="text-lg font-bold text-gray-900 leading-none">Dạy Toán</h1>
               </div>
             </Link>
             
             {user && (
-              <nav className="hidden md:flex space-x-8">
+              <nav className="hidden md:flex space-x-1">
                 {user.role === 'admin' ? (
                   <>
                      <Link 
                       to="/admin" 
-                      className={`font-medium transition-colors ${isActive('/admin') ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition-all ${isActive('/admin') ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:text-primary hover:bg-gray-50'}`}
                     >
                       Quản trị
                     </Link>
                      <Link 
                       to="/builder" 
-                      className={`font-medium transition-colors ${isActive('/builder') ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition-all ${isActive('/builder') ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:text-primary hover:bg-gray-50'}`}
                     >
                       Soạn bài
                     </Link>
@@ -77,19 +76,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <>
                     <Link 
                       to="/" 
-                      className={`font-medium transition-colors ${isActive('/') && location.pathname === '/' ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition-all ${isActive('/') && location.pathname === '/' ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:text-primary hover:bg-gray-50'}`}
                     >
                       Trang chủ
                     </Link>
                     <Link 
                       to="/progress" 
-                      className={`flex items-center gap-1 font-medium transition-colors ${isActive('/progress') ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition-all ${isActive('/progress') ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:text-primary hover:bg-gray-50'}`}
                     >
                       Tiến độ
                     </Link>
                     <Link 
                       to="/resources" 
-                      className={`flex items-center gap-1 font-medium transition-colors ${isActive('/resources') ? 'text-primary' : 'text-gray-500 hover:text-primary'}`}
+                      className={`px-4 py-2 rounded-full font-medium transition-all ${isActive('/resources') ? 'bg-primary/10 text-primary' : 'text-gray-500 hover:text-primary hover:bg-gray-50'}`}
                     >
                       Tài liệu
                     </Link>
@@ -100,36 +99,31 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             <div className="flex items-center">
                {user ? (
-                 <div className="flex items-center gap-4 pl-6 border-l border-gray-200 ml-4">
+                 <div className="flex items-center gap-3 pl-4 border-l border-gray-200 ml-4">
                    {/* User Profile */}
-                   <div className="flex items-center gap-3">
-                     <div className="text-right hidden md:block">
-                       <p className="text-sm font-bold text-gray-900 leading-tight">{user.name}</p>
-                       <p className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${user.role === 'admin' ? 'text-purple-600' : 'text-green-600'}`}>
-                         {user.role === 'admin' ? 'Quản trị viên' : 'Học viên'}
-                       </p>
-                     </div>
-                     <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 p-[2px] shadow-sm">
-                       <div className="h-full w-full rounded-full bg-white flex items-center justify-center text-indigo-700 font-bold text-sm">
+                   <div className="flex items-center gap-2">
+                     <div className="h-9 w-9 rounded-full bg-gradient-to-tr from-blue-500 to-purple-600 p-[2px] shadow-sm cursor-pointer group relative">
+                       <div className="h-full w-full rounded-full bg-white flex items-center justify-center text-indigo-700 font-bold text-xs">
                          {user.avatar || user.name.charAt(0)}
                        </div>
                      </div>
+                     <span className="text-sm font-bold text-gray-700 hidden lg:block">{user.name}</span>
                    </div>
 
                    {/* Logout Button */}
                    <button 
                     type="button"
                     onClick={handleLogout}
-                    className="flex items-center justify-center w-10 h-10 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-100"
+                    className="flex items-center justify-center w-9 h-9 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all focus:outline-none"
                     title="Đăng xuất"
                    >
-                     <LogOut size={20} strokeWidth={2} />
+                     <LogOut size={18} strokeWidth={2} />
                    </button>
                  </div>
                ) : (
                  <Link 
                    to="/login" 
-                   className="px-5 py-2.5 rounded-full bg-primary text-white font-medium text-sm hover:bg-blue-700 transition-colors shadow-sm shadow-blue-200 flex items-center gap-2"
+                   className="px-5 py-2 rounded-full bg-primary text-white font-medium text-sm hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 flex items-center gap-2"
                  >
                    <UserIcon size={16} />
                    Đăng nhập
@@ -137,8 +131,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                )}
             </div>
           </div>
-        </div>
-      </header>
+        </header>
+      </div>
 
       {/* Main Content */}
       <main className="flex-grow">
@@ -149,24 +143,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Footer */}
       {user && location.pathname !== '/login' && (
-        <footer className="bg-white border-t border-gray-200 mt-auto no-print">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <div className="flex items-center space-x-2 mb-4 md:mb-0">
-                 <BookOpen className="h-5 w-5 text-gray-400" />
-                 <span className="text-gray-500 text-sm">© TontonYuta Dạy Toán. All rights reserved.</span>
+        <footer className="bg-white border-t border-gray-200 mt-auto no-print py-8">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <div className="flex items-center space-x-2">
+                 <div className="bg-gray-100 p-1.5 rounded-lg text-gray-500"><BookOpen className="h-4 w-4" /></div>
+                 <span className="text-gray-500 text-sm font-medium">© 2025 TontonYuta Dạy Toán.</span>
               </div>
               
               <div className="flex space-x-6 items-center">
+                <a href="https://www.facebook.com/yuta.primer" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">
+                  <Facebook size={18} />
+                </a>
+                <a href="https://www.tiktok.com/@tontons.yuta" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-black transition-colors">
+                  <Video size={18} />
+                </a>
+                 <a href="https://zalo.me/0963278149" target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-500 transition-colors">
+                  <MessageCircle size={18} />
+                </a>
                 {user.role === 'admin' && (
-                  <Link to="/builder" className="text-gray-400 hover:text-primary transition-colors flex items-center gap-1 text-sm">
-                     <Code className="h-4 w-4" /> Soạn bài mới
+                  <Link to="/builder" className="text-gray-400 hover:text-primary transition-colors flex items-center gap-1 text-sm bg-gray-50 px-3 py-1 rounded-full">
+                     <Code className="h-3 w-3" /> <span className="text-xs">Dev Mode</span>
                   </Link>
                 )}
-                <a href="#" className="text-gray-400 hover:text-gray-500 transition-colors">
-                  <span className="sr-only">GitHub</span>
-                  <Github className="h-5 w-5" />
-                </a>
               </div>
             </div>
           </div>
